@@ -12,18 +12,27 @@
 import os
 os.system("color")
 AA_MODE = None
+
+
 def linear(words):
     # words must be a list of strings
     for _ in words:
         print(_)
         input()
-def choice(choices, choose_times=1):
+
+
+def choice(choices,
+           choose_times=1):
     # choices must be a dict of string:list of strings
     for _ in range(choose_times):
         choice = input()
         if choice in choices:
             linear(choices[choice])
-def looped_choice(choices, splash_string='''\033[1;31;47mHOLD IT!\033[0;0m''', splash_string_decisive='''\033[1;31;47mOBJECTION!\033[0;0m'''):
+
+
+def looped_choice(choices,
+                  splash_string='''\033[1;31;47mHOLD IT!\033[0;0m''',
+                  splash_string_decisive='''\033[1;31;47mOBJECTION!\033[0;0m'''):
     # choices must be a list of tuples(string, list of strings, bool)
     i = 0
     while 1:
