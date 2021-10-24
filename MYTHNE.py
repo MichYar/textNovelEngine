@@ -4,8 +4,8 @@
    Linear storylines                                                               ✓
    Linear choices (allowing multiple)                                              ✓
    Looped choices (like AA cross-examinations)                                     ✓
-   Court records  (also allowing presenting evidence in cross_examination)         ✗
-   Profiles in court records (allowing to be presented as evidence)                ✗
+   Court records  (also allowing presenting evidence in cross_examination)         ✓
+   Profiles in court records (allowing to be presented as evidence)                ✓ TODO: implement separation from evidence
    Poli-evidence (like multiple-paged document where each page can be an evidence) ✗
    Health system                                                                   ✗
 '''
@@ -17,7 +17,10 @@ os.system("color")
 
 AA_MODE = None
 courtRecords = {}
-
+if AA_MODE:
+    conversationEvidence = []
+    conversationFailure = []
+# to specify in scenario files
 
 def checkAndPresentEvidence(choosingMode=False):
     loopingList = [(_, courtRecords[_]) for _ in courtRecords]
@@ -66,12 +69,14 @@ def linear(words):
 def choice(choices,
            chooseTimes=1):
     # choices must be a dict of string:list of strings
-    for _ in choices:
-        print(_, choices[_])
     for _ in range(chooseTimes):
-        choice = input()
+        for __ in choices:
+            print(__, choices[__])
+        choice = input().lower()
+        if choice == 'материалы' or choice == 'records':
+            checkAndPresentEvidence()
         if choice in choices:
-            linear(choices[choice])
+            return choices[choice]
 
 
 def loopedChoice(choices,
@@ -94,6 +99,11 @@ def loopedChoice(choices,
             print(splashString if not choices[i][2] else splashStringDecisive)
             linear(choices[i][1])
             if choices[i][2]: # TODO: it must trigger a short conversation then choosing an evidence
-                break
+                linear(conversationEvidence)
+                print(f'''\033[1;32;mВыберите улику\033[0;0m''')
+                if checkAndPresentEvidence(choosingMode=True) == choices[i][3][1]:
+                    break
+                # TODO: implement health losing here
         elif q == 'материалы' or q == 'records':
-            checkAndPresentEvidence()
+            if checkAndPresentEvidence(choosingMode=True) == choices[i][3][1]:
+                    break
