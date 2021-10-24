@@ -6,8 +6,8 @@
    Looped choices (like AA cross-examinations)                                     ✓
    Court records  (also allowing presenting evidence in cross_examination)         ✓
    Profiles in court records (allowing to be presented as evidence)                ✓ TODO: implement separation from evidence
-   Poli-evidence (like multiple-paged document where each page can be an evidence) ✗
-   Health system                                                                   ✗
+   Poli-evidence (like multiple-paged document where each page can be an evidence) ⍻ NOTE: will never be implemented
+   Health system                                                                   ✓
 '''
 
 # REMEMBER: quit is for quittin in-game menus, exit for quitting the game
@@ -17,10 +17,10 @@ os.system("color")
 
 AA_MODE = None
 courtRecords = {}
-if AA_MODE:
-    conversationEvidence = []
-    conversationFailure = []
 # to specify in scenario files
+health = 5
+healthSymbol = '✭'
+
 
 def checkAndPresentEvidence(choosingMode=False):
     loopingList = [(_, courtRecords[_]) for _ in courtRecords]
@@ -81,8 +81,11 @@ def choice(choices,
 
 def loopedChoice(choices,
                   splashString='''\033[1;31;47mHOLD IT!\033[0;0m''',
-                  splashStringDecisive='''\033[1;31;47mOBJECTION!\033[0;0m'''):
-    # choices must be a list of tuples(string, list of strings, bool, evidence - if boolean argument is True)
+                  splashStringDecisive='''\033[1;31;47mOBJECTION!\033[0;0m''',
+                  conversationEvidence=[],
+                  conversationFailure=[]):
+    # choices must be a list of tuples(string, list of strings, bool, evidence - if boolean argument is True, penalty - if boolean argument is True)
+    global health
     i = 0
     while 1:
         print(choices[i][0])
@@ -100,10 +103,18 @@ def loopedChoice(choices,
             linear(choices[i][1])
             if choices[i][2]: # TODO: it must trigger a short conversation then choosing an evidence
                 linear(conversationEvidence)
-                print(f'''\033[1;32;mВыберите улику\033[0;0m''')
+                print(f'''\033[1;32;mВыберите улику\033[0;0m''', end='')
+                print(f'{" "*20}\033[1;31;m{healthSymbol*(5-health)}\033[0;0m\033[5;32;m{healthSymbol*choices[i][4]}\033[0;0m\033[1;32;m{healthSymbol*(5-choices[i][4])}\033[0;0m')
                 if checkAndPresentEvidence(choosingMode=True) == choices[i][3][1]:
                     break
-                # TODO: implement health losing here
+                else:
+                    linear(conversationFailure)
+                    health -= choices[i][4]
         elif q == 'материалы' or q == 'records':
+            print(f'''\033[1;32;mВыберите улику\033[0;0m''', end='')
+            print(f'{" "*20}\033[1;31;m{healthSymbol*(5-health)}\033[0;0m\033[5;32;m{healthSymbol*choices[i][4]}\033[0;0m\033[1;32;m{healthSymbol*(5-choices[i][4])}\033[0;0m')
             if checkAndPresentEvidence(choosingMode=True) == choices[i][3][1]:
-                    break
+                break
+            else:
+                linear(conversationFailure)
+                health -= choices[i][4]
